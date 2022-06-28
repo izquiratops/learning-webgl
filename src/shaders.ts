@@ -8,17 +8,23 @@ const comments = new RegExp(
 
 export const VERTEX_SOURCE = `
     attribute vec4 aVertexPosition;
-    
+    attribute vec4 aVertexColor;
+
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
     
+    varying lowp vec4 vColor;
+
     void main() {
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+        vColor = aVertexColor;
     }
 `.replace(comments, '');
 
 export const FRAGMENT_SOURCE = `
-    void main() {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    varying lowp vec4 vColor;
+
+    void main(void) {
+        gl_FragColor = vColor;
     }
 `.replace(comments, '');

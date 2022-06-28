@@ -1,16 +1,34 @@
 import {glMatrix, mat4} from "gl-matrix";
-import {ProgramInfo} from "./main";
-
-export interface Buffers {
-    position: WebGLBuffer
-}
+import {FRAGMENT_SOURCE, VERTEX_SOURCE} from "./shaders";
+import {Buffers, ProgramInfo} from "./renderer.model";
 
 export class Renderer {
 
-    constructor() {
+    initRenderingContext(gl: WebGLRenderingContext) {
+        // Step 1: Run the shader program
+        const shaderProgram = this.initShaderProgram(gl, VERTEX_SOURCE, FRAGMENT_SOURCE);
+
+        // Step 2: Attribute + Uniform locations
+        const programInfo: ProgramInfo = {
+            program: shaderProgram,
+            attribLocations: {
+                vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+                vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor')
+            },
+            uniformLocations: {
+                projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
+                modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix')
+            }
+        }
+
+        // Step 3: Load buffers
+        const buffers = this.initBuffers(gl);
+
+        // Step 4: Draw it
+        this.drawScene(gl, programInfo, buffers);
     }
 
-    initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string): WebGLProgram {
+    private initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string): WebGLProgram {
         function _loadShader(gl: WebGLRenderingContext, type: number, source: string): WebGLShader {
             const shader = gl.createShader(type);
 
@@ -43,9 +61,9 @@ export class Renderer {
         return shaderProgram;
     }
 
-    initBuffers(gl: WebGLRenderingContext): Buffers {
-        const positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    private initBuffers(gl: WebGLRenderingContext): Buffers {
+        // ------------ Position ------------
+        // attribute vec4 aVertexPosition;
 
         const positions = [
             +1.0, +1.0,
@@ -54,12 +72,30 @@ export class Renderer {
             -1.0, -1.0,
         ];
 
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
-        return {position: positionBuffer};
+        // -------------- Color -------------
+        // attribute vec4 aVertexColor;
+        const colors = [
+            1.0, 1.0, 1.0, 1.0, // white
+            1.0, 0.0, 0.0, 1.0, // red
+            0.0, 1.0, 0.0, 1.0, // green
+            0.0, 0.0, 1.0, 1.0, // blue
+        ];
+
+        const colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+
+        return {
+            position: positionBuffer,
+            color: colorBuffer
+        };
     }
 
-    drawScene(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers) {
+    private drawScene(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear black
         gl.clearDepth(1.0); // Clear everything
         gl.enable(gl.DEPTH_TEST); // Enable depth
@@ -92,8 +128,6 @@ export class Renderer {
             [0.0, 0.0, -6.0] // Amount to translate
         );
 
-        // Tell WebGL how to pull out the positions from the position
-        // buffer into the vertexPosition attribute.
         {
             const numComponents = 2;
             const type = gl.FLOAT;
@@ -114,6 +148,29 @@ export class Renderer {
 
             gl.enableVertexAttribArray(
                 programInfo.attribLocations.vertexPosition
+            );
+        }
+
+        {
+            const numComponents = 4;
+            const type = gl.FLOAT;
+            const normalize = false;
+            const stride = 0;
+            const offset = 0;
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+
+            gl.vertexAttribPointer(
+                programInfo.attribLocations.vertexColor,
+                numComponents,
+                type,
+                normalize,
+                stride,
+                offset
+            );
+
+            gl.enableVertexAttribArray(
+                programInfo.attribLocations.vertexColor
             );
         }
 

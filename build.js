@@ -28,7 +28,8 @@ const copyRecursiveSync = (src, dest) => {
 esbuild.build({
         entryPoints: ['src/main.ts'],
         bundle: true,
-        minify: true,
+        minify: false,
+        sourcemap: true,
         outdir: 'dist'
     })
     .then(_ => copyRecursiveSync('./src', './dist'))
