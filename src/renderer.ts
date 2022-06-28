@@ -1,6 +1,6 @@
 import {glMatrix, mat4} from "gl-matrix";
 import {FRAGMENT_SOURCE, VERTEX_SOURCE} from "./shaders";
-import {Buffers, ProgramInfo} from "./renderer.model";
+import {Buffers, ProgramInfo, VertexAttribute} from "./renderer.model";
 
 export class Renderer {
 
@@ -128,49 +128,40 @@ export class Renderer {
             [0.0, 0.0, -6.0] // Amount to translate
         );
 
-        {
-            const numComponents = 2;
-            const type = gl.FLOAT;
-            const normalize = false;
-            const stride = 0;
-            const offset = 0;
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-
-            gl.vertexAttribPointer(
-                programInfo.attribLocations.vertexPosition,
-                numComponents,
-                type,
-                normalize,
-                stride,
-                offset
-            );
-
-            gl.enableVertexAttribArray(
-                programInfo.attribLocations.vertexPosition
-            );
+        const position: VertexAttribute = {
+            buffer: buffers.position,
+            bufferPosition: programInfo.attribLocations.vertexPosition,
+            size: 2,
+            type: gl.FLOAT,
+            normalized: false,
+            stride: 0,
+            offset: 0
         }
 
-        {
-            const numComponents = 4;
-            const type = gl.FLOAT;
-            const normalize = false;
-            const stride = 0;
-            const offset = 0;
+        const color: VertexAttribute = {
+            buffer: buffers.color,
+            bufferPosition: programInfo.attribLocations.vertexColor,
+            size: 4,
+            type: gl.FLOAT,
+            normalized: false,
+            stride: 0,
+            offset: 0
+        }
 
-            gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
+        for (let attrib of [position, color]) {
+            gl.bindBuffer(gl.ARRAY_BUFFER, attrib.buffer);
 
             gl.vertexAttribPointer(
-                programInfo.attribLocations.vertexColor,
-                numComponents,
-                type,
-                normalize,
-                stride,
-                offset
+                attrib.bufferPosition,
+                attrib.size,
+                attrib.type,
+                attrib.normalized,
+                attrib.stride,
+                attrib.offset
             );
 
             gl.enableVertexAttribArray(
-                programInfo.attribLocations.vertexColor
+                attrib.bufferPosition
             );
         }
 
