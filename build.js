@@ -30,6 +30,7 @@ esbuild.build({
         bundle: true,
         minify: false,
         sourcemap: true,
+        watch: true,
         outdir: 'dist'
     })
     .then(_ => copyRecursiveSync('./src', './dist'))
