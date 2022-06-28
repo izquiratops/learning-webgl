@@ -1,5 +1,5 @@
 import {Renderer} from "./renderer";
-import {shaders} from "./shaders";
+import {VERTEX_SOURCE, FRAGMENT_SOURCE} from "./shaders";
 
 export interface ProgramInfo {
     program: WebGLProgram,
@@ -21,10 +21,9 @@ function main() {
     }
 
     const renderer = new Renderer();
-    const { vertex: vertexSource, fragment: fragmentSource } = shaders;
 
     // Step 1: Run the shader program
-    const shaderProgram = renderer.initShaderProgram(gl, vertexSource, fragmentSource);
+    const shaderProgram = renderer.initShaderProgram(gl, VERTEX_SOURCE, FRAGMENT_SOURCE);
 
     // Step 2: Attribute + Uniform locations
     const programInfo: ProgramInfo = {
