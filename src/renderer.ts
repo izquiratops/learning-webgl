@@ -4,8 +4,6 @@ import { Box } from "./box";
 import { Buffers, ProgramInfo } from "./renderer.model";
 
 export class Renderer {
-    squareRotation = 0.0;
-
     initRenderingContext(gl: WebGLRenderingContext) {
         // Step 1: Run the shader program
         const shaderProgram = this.initShaderProgram(gl, VERTEX_SOURCE, FRAGMENT_SOURCE);
@@ -31,13 +29,15 @@ export class Renderer {
 
         // Step 4: Draw it
         let then = 0;
+        let rotationAmount = 0;
 
         const render = (now: number) => {
             now *= 0.001; // to seconds
             const deltaTime = now - then;
             then = now;
 
-            this.drawScene(gl, programInfo, buffers, deltaTime);
+            rotationAmount = (rotationAmount + deltaTime) % 20;
+            this.drawScene(gl, programInfo, buffers, rotationAmount);
             requestAnimationFrame(render);
         };
 
@@ -121,9 +121,8 @@ export class Renderer {
         gl: WebGLRenderingContext,
         programInfo: ProgramInfo,
         buffers: Buffers,
-        deltaTime: number
+        rotationAmount: number
     ) {
-        /* Clear canvas */
         gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear black
         gl.clearDepth(1.0); // Clear everything
         gl.enable(gl.DEPTH_TEST); // Enable depth
@@ -154,7 +153,7 @@ export class Renderer {
         mat4.rotate(
             modelViewMatrix, // Destination matrix
             modelViewMatrix, // Matrix to rotate
-            this.squareRotation, // Amount of rotation (radians)
+            rotationAmount, // Amount of rotation (radians)
             [0, 1, 1] // Axis to rotate around
         );
 
@@ -221,12 +220,10 @@ export class Renderer {
         );
 
         {
-            const vertexCount = 36;
+            const vertexCount = Box.indices.length;
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
         }
-
-        this.squareRotation += deltaTime;
     }
 }
