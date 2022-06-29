@@ -1,9 +1,11 @@
 import { glMatrix, mat4 } from "gl-matrix";
 import { FRAGMENT_SOURCE, VERTEX_SOURCE } from "./shaders";
 import { Box } from "./box";
-import { Buffers, ProgramInfo, VertexAttribute } from "./renderer.model";
+import { Buffers, ProgramInfo } from "./renderer.model";
 
 export class Renderer {
+    squareRotation = 0.0;
+
     initRenderingContext(gl: WebGLRenderingContext) {
         // Step 1: Run the shader program
         const shaderProgram = this.initShaderProgram(gl, VERTEX_SOURCE, FRAGMENT_SOURCE);
@@ -28,7 +30,18 @@ export class Renderer {
         const buffers = this.initBuffers(gl);
 
         // Step 4: Draw it
-        this.drawScene(gl, programInfo, buffers);
+        let then = 0;
+
+        const render = (now: number) => {
+            now *= 0.001; // to seconds
+            const deltaTime = now - then;
+            then = now;
+
+            this.drawScene(gl, programInfo, buffers, deltaTime);
+            requestAnimationFrame(render);
+        };
+
+        requestAnimationFrame(render);
     }
 
     private initShaderProgram(
@@ -107,8 +120,10 @@ export class Renderer {
     private drawScene(
         gl: WebGLRenderingContext,
         programInfo: ProgramInfo,
-        buffers: Buffers
+        buffers: Buffers,
+        deltaTime: number
     ) {
+        /* Clear canvas */
         gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear black
         gl.clearDepth(1.0); // Clear everything
         gl.enable(gl.DEPTH_TEST); // Enable depth
@@ -116,64 +131,82 @@ export class Renderer {
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // Perspective matrix with a FOV of 45 degrees
-        const fieldOfView = glMatrix.toRadian(45);
-        const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-        const zNear = 0.1;
-        const zFar = 100.0;
+        const setProjectionMatrix = () => {
+            const fieldOfView = glMatrix.toRadian(45);
+            const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+            const zNear = 0.1;
+            const zFar = 100.0;
 
-        const projectionMatrix = mat4.create();
-        mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+            const projectionMatrix = mat4.create();
+            mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
-        // Center of scene
+            return projectionMatrix;
+        };
+
+        const projectionMatrix = setProjectionMatrix();
+
         const modelViewMatrix = mat4.create();
         mat4.translate(
             modelViewMatrix, // Destination matrix
             modelViewMatrix, // Matrix to translate
             [0.0, 0.0, -6.0] // Vector to translate by
         );
+        mat4.rotate(
+            modelViewMatrix, // Destination matrix
+            modelViewMatrix, // Matrix to rotate
+            this.squareRotation, // Amount of rotation (radians)
+            [0, 1, 1] // Axis to rotate around
+        );
 
-        const position: VertexAttribute = {
-            buffer: buffers.position,
-            bufferPosition: programInfo.attribLocations.vertexPosition,
-            size: 3,
-            type: gl.FLOAT,
-            normalized: false,
-            stride: 0,
-            offset: 0,
-        };
+        {
+            const buffer = buffers.position;
+            const bufferPosition = programInfo.attribLocations.vertexPosition;
+            const size = 3;
+            const type = gl.FLOAT;
+            const normalized = false;
+            const stride = 0;
+            const offset = 0;
 
-        const color: VertexAttribute = {
-            buffer: buffers.color,
-            bufferPosition: programInfo.attribLocations.vertexColor,
-            size: 4,
-            type: gl.FLOAT,
-            normalized: false,
-            stride: 0,
-            offset: 0,
-        };
-
-        for (let attrib of [position, color]) {
-            gl.bindBuffer(gl.ARRAY_BUFFER, attrib.buffer);
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
             gl.vertexAttribPointer(
-                attrib.bufferPosition,
-                attrib.size,
-                attrib.type,
-                attrib.normalized,
-                attrib.stride,
-                attrib.offset
+                bufferPosition,
+                size,
+                type,
+                normalized,
+                stride,
+                offset
             );
 
-            gl.enableVertexAttribArray(attrib.bufferPosition);
+            gl.enableVertexAttribArray(bufferPosition);
         }
 
-        // Box triangle indices
+        {
+            const buffer = buffers.color;
+            const bufferPosition = programInfo.attribLocations.vertexColor;
+            const size = 4;
+            const type = gl.FLOAT;
+            const normalized = false;
+            const stride = 0;
+            const offset = 0;
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+
+            gl.vertexAttribPointer(
+                bufferPosition,
+                size,
+                type,
+                normalized,
+                stride,
+                offset
+            );
+
+            gl.enableVertexAttribArray(bufferPosition);
+        }
+
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.index);
 
         gl.useProgram(programInfo.program);
-
-        // Set shader uniforms
 
         gl.uniformMatrix4fv(
             programInfo.uniformLocations.projectionMatrix,
@@ -193,5 +226,7 @@ export class Renderer {
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
         }
+
+        this.squareRotation += deltaTime;
     }
 }
