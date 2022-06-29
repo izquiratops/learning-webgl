@@ -130,7 +130,7 @@ export class Renderer {
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        const setProjectionMatrix = () => {
+        const setProjectionMatrix = (): mat4 => {
             const fieldOfView = glMatrix.toRadian(45);
             const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
             const zNear = 0.1;
