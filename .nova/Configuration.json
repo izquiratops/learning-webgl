@@ -1,6 +1,6 @@
 {
-  "prettier.default-config.bracketSpacing" : "Enable",
-  "prettier.default-config.printWidth" : 90,
-  "prettier.default-config.tabWidth" : 4,
-  "prettier.format-on-save" : "Enable"
+    "prettier.default-config.bracketSpacing": "Enable",
+    "prettier.default-config.printWidth": 90,
+    "prettier.default-config.tabWidth": 4,
+    "prettier.format-on-save": "Enable"
 }

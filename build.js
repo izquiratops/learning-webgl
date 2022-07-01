@@ -1,6 +1,6 @@
-const fs = require("fs");
-const path = require("path");
-const esbuild = require("esbuild");
+const fs = require('fs');
+const path = require('path');
+const esbuild = require('esbuild');
 
 const copyRecursiveSync = (src, dest) => {
     const isDirectory = fs.existsSync(src) && fs.statSync(src).isDirectory();
@@ -26,18 +26,15 @@ const copyRecursiveSync = (src, dest) => {
 
 (async () => {
     const result = await esbuild.build({
-        entryPoints: ["src/main.ts"],
-        outdir: "dist",
+        entryPoints: ['src/main.ts'],
+        outdir: 'dist',
         bundle: true,
         minify: true,
         metafile: true,
     });
 
     const buildReport = await esbuild.analyzeMetafile(result.metafile);
-    console.log("ESBuild report", buildReport);
+    console.log('ESBuild report', buildReport);
 
-    // TODO: Add roadroller to the build pipeline
-    // https://github.com/lifthrasiir/roadroller/
-
-    copyRecursiveSync("./src", "./dist");
+    copyRecursiveSync('./src', './dist');
 })();

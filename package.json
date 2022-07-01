@@ -9,12 +9,12 @@
     "author": "Jordi Izquierdo",
     "license": "ISC",
     "dependencies": {
-        "gl-matrix": "^3.4.3",
-        "roadroller": "^2.1.0"
+        "gl-matrix": "^3.4.3"
     },
     "devDependencies": {
         "esbuild": "^0.14.47",
         "prettier": "^2.7.1",
-        "typescript": "^4.7.4"
+        "typescript": "^4.7.4",
+        "roadroller": "^2.1.0"
     }
 }

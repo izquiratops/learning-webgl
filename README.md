@@ -1,3 +1,0 @@
-# Learning WebGL
-
-![](./screen.png)

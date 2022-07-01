@@ -1,12 +1,12 @@
 {
-  "extension" : {
-    "identifier" : "panic.JavaScript",
-    "name" : "JavaScript"
-  },
-  "extensionTemplate" : "nodeDebug",
-  "extensionValues" : {
-    "scriptPath" : "build.js",
-    "stopOnEntry" : true
-  },
-  "openLogOnRun" : "start"
+    "extension": {
+        "identifier": "panic.JavaScript",
+        "name": "JavaScript"
+    },
+    "extensionTemplate": "nodeDebug",
+    "extensionValues": {
+        "scriptPath": "build.js",
+        "stopOnEntry": true
+    },
+    "openLogOnRun": "start"
 }

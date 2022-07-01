@@ -1,7 +1,7 @@
 // Gets rid of comments
 // \/\*(\*(?!\/) | [^*])*\*\/  --> /* detect multi-line comment */
 // (?:\/\/).*                  --> // detect comments until end of line
-const comments = new RegExp("\\/\\*(\\*(?!\\/)|[^*])*\\*\\/|(\\/\\/).*", "gm");
+const comments = new RegExp('\\/\\*(\\*(?!\\/)|[^*])*\\*\\/|(\\/\\/).*', 'gm');
 
 export const VERTEX_SOURCE = `
     attribute vec4 aVertexPosition;
@@ -16,7 +16,7 @@ export const VERTEX_SOURCE = `
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
         vColor = aVertexColor;
     }
-`.replace(comments, "");
+`.replace(comments, '');
 
 export const FRAGMENT_SOURCE = `
     varying lowp vec4 vColor;
@@ -24,4 +24,4 @@ export const FRAGMENT_SOURCE = `
     void main(void) {
         gl_FragColor = vColor;
     }
-`.replace(comments, "");
+`.replace(comments, '');

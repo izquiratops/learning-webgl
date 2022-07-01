@@ -1,8 +1,8 @@
-class RendererHelper {
+export class RendererHelper {
     static loadShader(
         gl: WebGLRenderingContext,
         shaderType: GLenum,
-        shaderSource: string
+        shaderSource: string,
     ): WebGLShader {
         const shader = gl.createShader(shaderType);
 
@@ -16,7 +16,9 @@ class RendererHelper {
         if (!compiled) {
             gl.deleteShader(shader);
             throw new Error(
-                `An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`
+                `An error occurred compiling the shaders: ${gl.getShaderInfoLog(
+                    shader,
+                )}`,
             );
         }
 
@@ -26,17 +28,17 @@ class RendererHelper {
     static createProgram(
         gl: WebGLRenderingContext,
         vertexSource: string,
-        fragmentSource: string
+        fragmentSource: string,
     ): WebGLProgram {
         const vertexShader = RendererHelper.loadShader(
             gl,
             gl.VERTEX_SHADER,
-            vertexSource
+            vertexSource,
         );
         const fragmentShader = RendererHelper.loadShader(
             gl,
             gl.FRAGMENT_SHADER,
-            fragmentSource
+            fragmentSource,
         );
 
         const shaderProgram = gl.createProgram();
@@ -51,8 +53,8 @@ class RendererHelper {
             gl.deleteProgram(shaderProgram);
             throw new Error(
                 `Unable to initialize the shader program: ${gl.getProgramInfoLog(
-                    shaderProgram
-                )}`
+                    shaderProgram,
+                )}`,
             );
         }
 
@@ -66,7 +68,8 @@ class RendererHelper {
 
         // Check if the canvas is not the same size.
         const needResize =
-            gl.canvas.width !== displayWidth || gl.canvas.height !== displayHeight;
+            gl.canvas.width !== displayWidth ||
+            gl.canvas.height !== displayHeight;
 
         if (needResize) {
             // Make the canvas the same size

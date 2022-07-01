@@ -1,9 +1,9 @@
 {
-  "actions" : {
-    "run" : {
-      "enabled" : true,
-      "script" : "npm run build"
-    }
-  },
-  "openLogOnRun" : "fail"
+    "actions": {
+        "run": {
+            "enabled": true,
+            "script": "npm run build"
+        }
+    },
+    "openLogOnRun": "fail"
 }

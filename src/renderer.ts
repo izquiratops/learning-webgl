@@ -1,7 +1,10 @@
-import { glMatrix, mat4 } from "gl-matrix";
-import { FRAGMENT_SOURCE, VERTEX_SOURCE } from "./shaders";
-import { Box } from "./box";
-import { Buffers, ProgramInfo } from "./renderer.model";
+import { glMatrix, mat4 } from 'gl-matrix';
+import { Buffers, ProgramInfo } from './renderer.model';
+import { RendererHelper } from './renderer-helper';
+
+// Imported scene data
+import { FRAGMENT_SOURCE, VERTEX_SOURCE } from './shaders';
+import { BoxObject } from './box-object';
 
 export class Renderer {
     constructor(gl: WebGLRenderingContext) {
@@ -12,21 +15,30 @@ export class Renderer {
         const shaderProgram = RendererHelper.createProgram(
             gl,
             VERTEX_SOURCE,
-            FRAGMENT_SOURCE
+            FRAGMENT_SOURCE,
         );
 
         const programInfo: ProgramInfo = {
             program: shaderProgram,
             attribLocations: {
-                vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
-                vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
+                vertexPosition: gl.getAttribLocation(
+                    shaderProgram,
+                    'aVertexPosition',
+                ),
+                vertexColor: gl.getAttribLocation(
+                    shaderProgram,
+                    'aVertexColor',
+                ),
             },
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(
                     shaderProgram,
-                    "uProjectionMatrix"
+                    'uProjectionMatrix',
                 ),
-                modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
+                modelViewMatrix: gl.getUniformLocation(
+                    shaderProgram,
+                    'uModelViewMatrix',
+                ),
             },
         };
 
@@ -51,18 +63,26 @@ export class Renderer {
     private initBuffers(gl: WebGLRenderingContext): Buffers {
         const positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(Box.vertices), gl.STATIC_DRAW);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array(BoxObject.vertices),
+            gl.STATIC_DRAW,
+        );
 
         const colorBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(Box.colors), gl.STATIC_DRAW);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array(BoxObject.colors),
+            gl.STATIC_DRAW,
+        );
 
         const indexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
         gl.bufferData(
             gl.ELEMENT_ARRAY_BUFFER,
-            new Uint16Array(Box.indices),
-            gl.STATIC_DRAW
+            new Uint16Array(BoxObject.indices),
+            gl.STATIC_DRAW,
         );
 
         return {
@@ -76,7 +96,7 @@ export class Renderer {
         gl: WebGLRenderingContext,
         programInfo: ProgramInfo,
         buffers: Buffers,
-        animationIndex: number
+        animationIndex: number,
     ) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear black
         gl.clearDepth(1.0); // Clear everything
@@ -93,7 +113,13 @@ export class Renderer {
             const zFar = 100.0;
 
             const projectionMatrix = mat4.create();
-            mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+            mat4.perspective(
+                projectionMatrix,
+                fieldOfView,
+                aspect,
+                zNear,
+                zFar,
+            );
 
             return projectionMatrix;
         };
@@ -105,7 +131,7 @@ export class Renderer {
                 modelViewMatrix,
                 modelViewMatrix,
                 // prettier-ignore
-                [Math.sin(animationIndex) * 0.8, 0.0, -8.0]
+                [Math.sin(animationIndex) * 0.8, 0.0, -8.0],
             );
 
             mat4.rotate(
@@ -113,7 +139,7 @@ export class Renderer {
                 modelViewMatrix,
                 Math.sin(animationIndex) * 2.0,
                 // prettier-ignore
-                [0, 1, 1]
+                [0, 1, 1],
             );
 
             return modelViewMatrix;
@@ -140,7 +166,7 @@ export class Renderer {
                 type,
                 normalized,
                 stride,
-                offset
+                offset,
             );
 
             gl.enableVertexAttribArray(bufferPosition);
@@ -163,7 +189,7 @@ export class Renderer {
                 type,
                 normalized,
                 stride,
-                offset
+                offset,
             );
 
             gl.enableVertexAttribArray(bufferPosition);
@@ -174,17 +200,17 @@ export class Renderer {
         gl.uniformMatrix4fv(
             programInfo.uniformLocations.projectionMatrix,
             false,
-            projectionMatrix
+            projectionMatrix,
         );
 
         gl.uniformMatrix4fv(
             programInfo.uniformLocations.modelViewMatrix,
             false,
-            modelViewMatrix
+            modelViewMatrix,
         );
 
         {
-            const vertexCount = Box.indices.length;
+            const vertexCount = BoxObject.indices.length;
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);

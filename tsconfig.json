@@ -1,12 +1,12 @@
 {
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "noImplicitAny": true,
-    "declaration": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "target": "ES2017"
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", ".idea", ".nova"]
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "noImplicitAny": true,
+        "declaration": true,
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "target": "ES2017"
+    },
+    "include": ["src"],
+    "exclude": ["node_modules", "dist", ".idea", ".nova"]
 }
