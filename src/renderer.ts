@@ -42,61 +42,35 @@ export class Renderer {
             },
         };
 
-        const buffers = this.initBuffers(gl);
+        const buffers = RendererHelper.initBuffers(gl);
 
         let then = 0;
         let animationStep = 0;
 
         const renderFrame = (now: DOMHighResTimeStamp) => {
+            // Increment animation step
             now *= 0.001; // to seconds
             animationStep = (animationStep + (now - then)) % (2 * Math.PI);
             then = now;
 
+            // Check if canvas has to be resized
             RendererHelper.resizeCanvasToDisplaySize(gl);
+
+            // Draw scene on canvas
             this.drawScene(gl, programInfo, buffers, animationStep);
+
+            // Move to the following frame
             requestAnimationFrame(renderFrame);
         };
 
         requestAnimationFrame(renderFrame);
     }
 
-    private initBuffers(gl: WebGLRenderingContext): Buffers {
-        const positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.bufferData(
-            gl.ARRAY_BUFFER,
-            new Float32Array(BoxObject.vertices),
-            gl.STATIC_DRAW,
-        );
-
-        const colorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.bufferData(
-            gl.ARRAY_BUFFER,
-            new Float32Array(BoxObject.colors),
-            gl.STATIC_DRAW,
-        );
-
-        const indexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        gl.bufferData(
-            gl.ELEMENT_ARRAY_BUFFER,
-            new Uint16Array(BoxObject.indices),
-            gl.STATIC_DRAW,
-        );
-
-        return {
-            position: positionBuffer,
-            color: colorBuffer,
-            index: indexBuffer,
-        };
-    }
-
     private drawScene(
         gl: WebGLRenderingContext,
         programInfo: ProgramInfo,
         buffers: Buffers,
-        animationIndex: number,
+        animationStep: number,
     ) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear black
         gl.clearDepth(1.0); // Clear everything
@@ -131,13 +105,13 @@ export class Renderer {
                 modelViewMatrix,
                 modelViewMatrix,
                 // prettier-ignore
-                [Math.sin(animationIndex) * 0.8, 0.0, -8.0],
+                [Math.sin(animationStep) * 0.8, 0.0, -8.0],
             );
 
             mat4.rotate(
                 modelViewMatrix,
                 modelViewMatrix,
-                Math.sin(animationIndex) * 2.0,
+                Math.sin(animationStep) * 2.0,
                 // prettier-ignore
                 [0, 1, 1],
             );
