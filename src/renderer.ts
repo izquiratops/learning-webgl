@@ -4,11 +4,17 @@ import { Box } from "./box";
 import { Buffers, ProgramInfo } from "./renderer.model";
 
 export class Renderer {
-    initRenderingContext(gl: WebGLRenderingContext) {
-        // Step 1: Run the shader program
-        const shaderProgram = this.initShaderProgram(gl, VERTEX_SOURCE, FRAGMENT_SOURCE);
+    constructor(gl: WebGLRenderingContext) {
+        this.init(gl);
+    }
 
-        // Step 2: Attribute + Uniform locations
+    private init(gl: WebGLRenderingContext) {
+        const shaderProgram = RendererHelper.createProgram(
+            gl,
+            VERTEX_SOURCE,
+            FRAGMENT_SOURCE
+        );
+
         const programInfo: ProgramInfo = {
             program: shaderProgram,
             attribLocations: {
@@ -24,73 +30,22 @@ export class Renderer {
             },
         };
 
-        // Step 3: Load buffers
         const buffers = this.initBuffers(gl);
 
-        // Step 4: Draw it
         let then = 0;
-        let rotationAmount = 0;
+        let animationStep = 0;
 
-        const render = (now: number) => {
+        const renderFrame = (now: DOMHighResTimeStamp) => {
             now *= 0.001; // to seconds
-            const deltaTime = now - then;
+            animationStep = (animationStep + (now - then)) % (2 * Math.PI);
             then = now;
 
-            rotationAmount = (rotationAmount + deltaTime) % 20;
-            this.drawScene(gl, programInfo, buffers, rotationAmount);
-            requestAnimationFrame(render);
+            RendererHelper.resizeCanvasToDisplaySize(gl);
+            this.drawScene(gl, programInfo, buffers, animationStep);
+            requestAnimationFrame(renderFrame);
         };
 
-        requestAnimationFrame(render);
-    }
-
-    private initShaderProgram(
-        gl: WebGLRenderingContext,
-        vsSource: string,
-        fsSource: string
-    ): WebGLProgram {
-        function _loadShader(
-            gl: WebGLRenderingContext,
-            type: number,
-            source: string
-        ): WebGLShader {
-            const shader = gl.createShader(type);
-
-            // Send the source to the shader object
-            gl.shaderSource(shader, source);
-            gl.compileShader(shader);
-
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                gl.deleteShader(shader);
-                throw new Error(
-                    `An error occurred compiling the shaders: ${gl.getShaderInfoLog(
-                        shader
-                    )}`
-                );
-            }
-
-            return shader;
-        }
-
-        const vertexShader = _loadShader(gl, gl.VERTEX_SHADER, vsSource);
-        const fragmentShader = _loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
-
-        const shaderProgram = gl.createProgram();
-        gl.attachShader(shaderProgram, vertexShader);
-        gl.attachShader(shaderProgram, fragmentShader);
-
-        // Completes the process of preparing the GPU code for the shaders.
-        gl.linkProgram(shaderProgram);
-
-        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-            throw new Error(
-                `Unable to initialize the shader program: ${gl.getProgramInfoLog(
-                    shaderProgram
-                )}`
-            );
-        }
-
-        return shaderProgram;
+        requestAnimationFrame(renderFrame);
     }
 
     private initBuffers(gl: WebGLRenderingContext): Buffers {
@@ -121,7 +76,7 @@ export class Renderer {
         gl: WebGLRenderingContext,
         programInfo: ProgramInfo,
         buffers: Buffers,
-        rotationAmount: number
+        animationIndex: number
     ) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear black
         gl.clearDepth(1.0); // Clear everything
@@ -129,8 +84,9 @@ export class Renderer {
         gl.depthFunc(gl.LEQUAL); // Near things obscure far things
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        gl.useProgram(programInfo.program);
 
-        const setProjectionMatrix = (): mat4 => {
+        const _setProjectionMatrix = (): mat4 => {
             const fieldOfView = glMatrix.toRadian(45);
             const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
             const zNear = 0.1;
@@ -142,20 +98,30 @@ export class Renderer {
             return projectionMatrix;
         };
 
-        const projectionMatrix = setProjectionMatrix();
+        const _setModelViewMatrix = (): mat4 => {
+            const modelViewMatrix = mat4.create();
 
-        const modelViewMatrix = mat4.create();
-        mat4.translate(
-            modelViewMatrix, // Destination matrix
-            modelViewMatrix, // Matrix to translate
-            [0.0, 0.0, -6.0] // Vector to translate by
-        );
-        mat4.rotate(
-            modelViewMatrix, // Destination matrix
-            modelViewMatrix, // Matrix to rotate
-            rotationAmount, // Amount of rotation (radians)
-            [0, 1, 1] // Axis to rotate around
-        );
+            mat4.translate(
+                modelViewMatrix,
+                modelViewMatrix,
+                // prettier-ignore
+                [Math.sin(animationIndex) * 0.8, 0.0, -8.0]
+            );
+
+            mat4.rotate(
+                modelViewMatrix,
+                modelViewMatrix,
+                Math.sin(animationIndex) * 2.0,
+                // prettier-ignore
+                [0, 1, 1]
+            );
+
+            return modelViewMatrix;
+        };
+
+        const projectionMatrix = _setProjectionMatrix();
+
+        const modelViewMatrix = _setModelViewMatrix();
 
         {
             const buffer = buffers.position;
@@ -204,8 +170,6 @@ export class Renderer {
         }
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.index);
-
-        gl.useProgram(programInfo.program);
 
         gl.uniformMatrix4fv(
             programInfo.uniformLocations.projectionMatrix,

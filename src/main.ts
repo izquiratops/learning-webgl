@@ -2,8 +2,6 @@ import { Renderer } from "./renderer";
 
 function main() {
     const canvas: HTMLCanvasElement = document.querySelector("#glCanvas");
-    canvas.width = document.body.clientWidth;
-    canvas.height = document.body.clientHeight;
     const gl = canvas.getContext("webgl");
 
     if (gl === null) {
@@ -12,8 +10,7 @@ function main() {
         );
     }
 
-    const renderer = new Renderer();
-    renderer.initRenderingContext(gl);
+    const renderer = new Renderer(gl);
 }
 
 window.onload = main;

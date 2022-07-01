@@ -1,17 +1,20 @@
 {
-  "name": "getting_started_with_webgl",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/main.ts",
-  "scripts": {
-    "build": "node build.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "esbuild": "^0.14.47",
-    "gl-matrix": "^3.4.3",
-    "prettier": "^2.7.1",
-    "typescript": "^4.7.4"
-  }
+    "name": "getting_started_with_webgl",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/main.ts",
+    "scripts": {
+        "build": "node build.js"
+    },
+    "author": "Jordi Izquierdo",
+    "license": "ISC",
+    "dependencies": {
+        "gl-matrix": "^3.4.3",
+        "roadroller": "^2.1.0"
+    },
+    "devDependencies": {
+        "esbuild": "^0.14.47",
+        "prettier": "^2.7.1",
+        "typescript": "^4.7.4"
+    }
 }
