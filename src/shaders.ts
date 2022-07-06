@@ -3,14 +3,14 @@
 // (?:\/\/).*                  --> // detect comments until end of line
 const comments = new RegExp('\\/\\*(\\*(?!\\/)|[^*])*\\*\\/|(\\/\\/).*', 'gm');
 
-export const VERTEX_SOURCE = `
-    attribute vec4 aVertexPosition;
-    attribute vec4 aVertexColor;
+export const VERTEX_SOURCE = `#version 300 es
+    in vec4 aVertexPosition;
+    in vec4 aVertexColor;
 
     uniform mat4 uModelViewMatrix;
     uniform mat4 uProjectionMatrix;
 
-    varying lowp vec4 vColor;
+    out lowp vec4 vColor;
 
     void main() {
         gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
@@ -18,10 +18,14 @@ export const VERTEX_SOURCE = `
     }
 `.replace(comments, '');
 
-export const FRAGMENT_SOURCE = `
-    varying lowp vec4 vColor;
+export const FRAGMENT_SOURCE = `#version 300 es
+    precision highp float;
+
+    in lowp vec4 vColor;
+    
+    out vec4 outColor;
 
     void main(void) {
-        gl_FragColor = vColor;
+        outColor = vColor;
     }
 `.replace(comments, '');

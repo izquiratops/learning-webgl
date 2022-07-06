@@ -7,11 +7,11 @@ import { FRAGMENT_SOURCE, VERTEX_SOURCE } from './shaders';
 import { BoxObject } from './box-object';
 
 export class Renderer {
-    constructor(gl: WebGLRenderingContext) {
+    constructor(gl: WebGL2RenderingContext) {
         this.init(gl);
     }
 
-    private init(gl: WebGLRenderingContext) {
+    private init(gl: WebGL2RenderingContext) {
         const shaderProgram = RendererHelper.createProgram(
             gl,
             VERTEX_SOURCE,
@@ -72,7 +72,7 @@ export class Renderer {
         buffers: Buffers,
         animationStep: number,
     ) {
-        gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear black
+        gl.clearColor(0, 0, 0, 1); // Clear black
         gl.clearDepth(1.0); // Clear everything
         gl.enable(gl.DEPTH_TEST); // Enable depth
         gl.depthFunc(gl.LEQUAL); // Near things obscure far things
@@ -150,8 +150,8 @@ export class Renderer {
             const buffer = buffers.color;
             const bufferPosition = programInfo.attribLocations.vertexColor;
             const size = 4;
-            const type = gl.FLOAT;
-            const normalized = false;
+            const type = gl.UNSIGNED_BYTE;
+            const normalized = true;
             const stride = 0;
             const offset = 0;
 

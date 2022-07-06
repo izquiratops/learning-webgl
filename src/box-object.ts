@@ -40,12 +40,12 @@ export class BoxObject {
 
     // prettier-ignore
     static colors = [
-	    [1.0,  1.0,  1.0,  1.0], // Front face: white
-	    [1.0,  0.0,  0.0,  1.0], // Back face: red
-	    [0.0,  1.0,  0.0,  1.0], // Top face: green
-	    [0.0,  0.0,  1.0,  1.0], // Bottom face: blue
-	    [1.0,  1.0,  0.0,  1.0], // Right face: yellow
-	    [1.0,  0.0,  1.0,  1.0], // Left face: purple
+	    [255,  255,  255,  255], // Front face: white
+	    [255,    0,    0,  255], // Back face: red
+	    [  0,  255,    0,  255], // Top face: green
+	    [  0,    0,    0,  255], // Bottom face: blue
+	    [255,  255,    0,  255], // Right face: yellow
+	    [255,    0,    0,  255], // Left face: purple
     ].reduce((acc, curr) => acc.concat(curr, curr, curr, curr), []);
 
     // This array defines each face as two triangles, using the

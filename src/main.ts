@@ -2,7 +2,7 @@ import { Renderer } from './renderer';
 
 window.onload = () => {
     const canvas: HTMLCanvasElement = document.querySelector('#glCanvas');
-    const gl: WebGLRenderingContext = canvas.getContext('webgl');
+    const gl: WebGL2RenderingContext = canvas.getContext('webgl2');
 
     if (gl === null) {
         throw new Error(

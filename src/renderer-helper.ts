@@ -77,7 +77,7 @@ export class RendererHelper {
         gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
         gl.bufferData(
             gl.ARRAY_BUFFER,
-            new Float32Array(BoxObject.colors),
+            new Uint8Array(BoxObject.colors),
             gl.STATIC_DRAW,
         );
 
