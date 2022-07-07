@@ -21,23 +21,13 @@ export class Renderer {
         const programInfo: ProgramInfo = {
             program: shaderProgram,
             attribLocations: {
-                vertexPosition: gl.getAttribLocation(
-                    shaderProgram,
-                    'aVertexPosition',
-                ),
-                vertexColor: gl.getAttribLocation(
-                    shaderProgram,
-                    'aVertexColor',
-                ),
+                vertexPosition: gl.getAttribLocation(shaderProgram, 'a_vertex'),
+                vertexColor: gl.getAttribLocation(shaderProgram, 'a_color'),
             },
             uniformLocations: {
                 projectionMatrix: gl.getUniformLocation(
                     shaderProgram,
-                    'uProjectionMatrix',
-                ),
-                modelViewMatrix: gl.getUniformLocation(
-                    shaderProgram,
-                    'uModelViewMatrix',
+                    'u_matrix',
                 ),
             },
         };
@@ -81,7 +71,7 @@ export class Renderer {
         gl.useProgram(programInfo.program);
 
         const _setProjectionMatrix = (): mat4 => {
-            const fieldOfView = glMatrix.toRadian(45);
+            const fieldOfView = glMatrix.toRadian(90);
             const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
             const zNear = 0.1;
             const zFar = 100.0;
@@ -95,33 +85,25 @@ export class Renderer {
                 zFar,
             );
 
-            return projectionMatrix;
-        };
-
-        const _setModelViewMatrix = (): mat4 => {
-            const modelViewMatrix = mat4.create();
-
             mat4.translate(
-                modelViewMatrix,
-                modelViewMatrix,
+                projectionMatrix,
+                projectionMatrix,
                 // prettier-ignore
-                [Math.sin(animationStep) * 0.8, 0.0, -8.0],
+                [Math.sin(animationStep), 0.0, -5.0],
             );
 
             mat4.rotate(
-                modelViewMatrix,
-                modelViewMatrix,
+                projectionMatrix,
+                projectionMatrix,
                 Math.sin(animationStep) * 2.0,
                 // prettier-ignore
-                [0, 1, 1],
+                [0, 1, 0],
             );
 
-            return modelViewMatrix;
+            return projectionMatrix;
         };
 
         const projectionMatrix = _setProjectionMatrix();
-
-        const modelViewMatrix = _setModelViewMatrix();
 
         {
             const buffer = buffers.position;
@@ -175,12 +157,6 @@ export class Renderer {
             programInfo.uniformLocations.projectionMatrix,
             false,
             projectionMatrix,
-        );
-
-        gl.uniformMatrix4fv(
-            programInfo.uniformLocations.modelViewMatrix,
-            false,
-            modelViewMatrix,
         );
 
         {

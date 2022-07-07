@@ -22,6 +22,5 @@ export interface ProgramInfo {
     };
     uniformLocations: {
         projectionMatrix: WebGLUniformLocation;
-        modelViewMatrix: WebGLUniformLocation;
     };
 }
