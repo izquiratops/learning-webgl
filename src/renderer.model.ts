@@ -6,19 +6,19 @@ export interface Buffers {
 
 export interface VertexAttribute {
     buffer: WebGLBuffer;
-    bufferPosition: number;
-    size: number;
-    type: number;
-    normalized: boolean;
-    stride: number;
-    offset: number;
+    bufferPosition: GLuint;
+    size: GLint;
+    type: GLenum;
+    normalized: GLboolean;
+    stride: GLsizei;
+    offset: GLintptr;
 }
 
 export interface ProgramInfo {
     program: WebGLProgram;
     attribLocations: {
-        vertexPosition: number;
-        vertexColor: number;
+        vertexPosition: GLint;
+        vertexColor: GLint;
     };
     uniformLocations: {
         projectionMatrix: WebGLUniformLocation;
