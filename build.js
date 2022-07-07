@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const esbuild = require('esbuild');
 
+const devMode = process.argv[2] === 'serve';
+
 const copyRecursiveSync = (src, dest) => {
     const isDirectory = fs.existsSync(src) && fs.statSync(src).isDirectory();
 
@@ -29,7 +31,8 @@ const copyRecursiveSync = (src, dest) => {
         entryPoints: ['src/main.ts'],
         outdir: 'dist',
         bundle: true,
-        minify: true,
+        minify: !devMode,
+        watch: devMode,
         metafile: true,
     });
 
