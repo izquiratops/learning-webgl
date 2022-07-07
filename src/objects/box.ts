@@ -1,6 +1,6 @@
-export class BoxObject {
+export class Box {
     // prettier-ignore
-    static vertices = [
+    vertices = [
 		// Front face
 		-1.0, -1.0,  1.0,
 		 1.0, -1.0,  1.0,
@@ -39,7 +39,7 @@ export class BoxObject {
   	];
 
     // prettier-ignore
-    static colors = [
+    colors = [
 	    [255,  255,  255,  255], // Front face: white
 	    [255,    0,    0,  255], // Back face: red
 	    [  0,  255,    0,  255], // Top face: green
@@ -52,7 +52,7 @@ export class BoxObject {
     // indices into the vertex array to specify each triangle's
     // position.
     // prettier-ignore
-    static indices = [
+    indices = [
 		  0,  1,  2,      0,  2,  3,    // Front
 		  4,  5,  6,      4,  6,  7,    // Back
 		  8,  9,  10,     8,  10, 11,   // Top

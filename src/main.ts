@@ -1,4 +1,5 @@
-import { Renderer } from './renderer';
+import { Renderer } from './renderer/renderer';
+import { Box } from './objects/box';
 
 window.onload = () => {
     const canvas: HTMLCanvasElement = document.querySelector('#glCanvas');
@@ -10,5 +11,9 @@ window.onload = () => {
         );
     }
 
-    const renderer = new Renderer(gl);
+    const renderer = new Renderer();
+    const programInfo = renderer.initProgram(gl);
+    const buffers = renderer.loadBuffers(gl, new Box());
+
+    renderer.run(gl, programInfo, buffers);
 };

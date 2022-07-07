@@ -1,6 +1,6 @@
 // Gets rid of comments
 // \/\*(\*(?!\/) | [^*])*\*\/  --> /* detect multi-line comment */
-// (?:\/\/).*                  --> // detect comments until end of line
+// (\/\/).*                  --> // detect comments until end of line
 const comments = new RegExp('\\/\\*(\\*(?!\\/)|[^*])*\\*\\/|(\\/\\/).*', 'gm');
 
 export const VERTEX_SOURCE = `#version 300 es

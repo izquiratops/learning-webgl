@@ -1,24 +1,19 @@
 import { glMatrix, mat4 } from 'gl-matrix';
-import { Buffers, ProgramInfo } from './renderer.model';
+import { Buffers, ProgramInfo } from './types';
 import { RendererHelper } from './renderer-helper';
 
-// Imported scene data
 import { FRAGMENT_SOURCE, VERTEX_SOURCE } from './shaders';
-import { BoxObject } from './box-object';
+import { Box } from '../objects/box';
 
 export class Renderer {
-    constructor(gl: WebGL2RenderingContext) {
-        this.init(gl);
-    }
-
-    private init(gl: WebGL2RenderingContext) {
+    initProgram(gl: WebGL2RenderingContext): ProgramInfo {
         const shaderProgram = RendererHelper.createProgram(
             gl,
             VERTEX_SOURCE,
             FRAGMENT_SOURCE,
         );
 
-        const programInfo: ProgramInfo = {
+        return {
             program: shaderProgram,
             attribLocations: {
                 vertexPosition: gl.getAttribLocation(shaderProgram, 'a_vertex'),
@@ -31,36 +26,59 @@ export class Renderer {
                 ),
             },
         };
+    }
 
-        const buffers = RendererHelper.initBuffers(gl);
+    loadBuffers(gl: WebGLRenderingContext, mesh: Box): Buffers {
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Float32Array(mesh.vertices),
+            gl.STATIC_DRAW,
+        );
 
-        let then = 0;
-        let animationStep = 0;
+        const colorBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            new Uint8Array(mesh.colors),
+            gl.STATIC_DRAW,
+        );
 
-        const renderFrame = (now: DOMHighResTimeStamp) => {
-            // Increment animation step
-            now *= 0.001; // to seconds
-            animationStep = (animationStep + (now - then)) % (2 * Math.PI);
-            then = now;
+        const indexBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+        gl.bufferData(
+            gl.ELEMENT_ARRAY_BUFFER,
+            new Uint16Array(mesh.indices),
+            gl.STATIC_DRAW,
+        );
 
+        return {
+            position: positionBuffer,
+            color: colorBuffer,
+            index: indexBuffer,
+        };
+    }
+
+    run(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers) {
+        const render = () => {
             // Check if canvas has to be resized
             RendererHelper.resizeCanvasToDisplaySize(gl);
 
             // Draw scene on canvas
-            this.drawScene(gl, programInfo, buffers, animationStep);
+            this.drawScene(gl, programInfo, buffers);
 
             // Move to the following frame
-            requestAnimationFrame(renderFrame);
+            requestAnimationFrame(render);
         };
 
-        requestAnimationFrame(renderFrame);
+        render();
     }
 
     private drawScene(
         gl: WebGLRenderingContext,
         programInfo: ProgramInfo,
         buffers: Buffers,
-        animationStep: number,
     ) {
         gl.clearColor(0, 0, 0, 1); // Clear black
         gl.clearDepth(1.0); // Clear everything
@@ -70,7 +88,7 @@ export class Renderer {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         gl.useProgram(programInfo.program);
 
-        const _setProjectionMatrix = (): mat4 => {
+        const projectionMatrix = ((): mat4 => {
             const fieldOfView = glMatrix.toRadian(90);
             const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
             const zNear = 0.1;
@@ -89,22 +107,13 @@ export class Renderer {
                 projectionMatrix,
                 projectionMatrix,
                 // prettier-ignore
-                [Math.sin(animationStep), 0.0, -5.0],
-            );
-
-            mat4.rotate(
-                projectionMatrix,
-                projectionMatrix,
-                Math.sin(animationStep) * 2.0,
-                // prettier-ignore
-                [0, 1, 0],
+                [0.0, 0.0, -3.0],
             );
 
             return projectionMatrix;
-        };
+        })();
 
-        const projectionMatrix = _setProjectionMatrix();
-
+        // Set VERTEX buffer position
         {
             const buffer = buffers.position;
             const bufferPosition = programInfo.attribLocations.vertexPosition;
@@ -128,9 +137,10 @@ export class Renderer {
             gl.enableVertexAttribArray(bufferPosition);
         }
 
+        // Set COLOR buffer position
         {
             const buffer = buffers.color;
-            const bufferPosition = programInfo.attribLocations.vertexColor;
+            const colorPosition = programInfo.attribLocations.vertexColor;
             const size = 4;
             const type = gl.UNSIGNED_BYTE;
             const normalized = true;
@@ -140,7 +150,7 @@ export class Renderer {
             gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 
             gl.vertexAttribPointer(
-                bufferPosition,
+                colorPosition,
                 size,
                 type,
                 normalized,
@@ -148,9 +158,10 @@ export class Renderer {
                 offset,
             );
 
-            gl.enableVertexAttribArray(bufferPosition);
+            gl.enableVertexAttribArray(colorPosition);
         }
 
+        // Set INDICES buffer array
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.index);
 
         gl.uniformMatrix4fv(
@@ -160,7 +171,7 @@ export class Renderer {
         );
 
         {
-            const vertexCount = BoxObject.indices.length;
+            const vertexCount = 6 * 6;
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);

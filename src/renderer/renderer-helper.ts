@@ -1,6 +1,3 @@
-import { Buffers } from './renderer.model';
-import { BoxObject } from './box-object';
-
 export class RendererHelper {
     static loadShader(
         gl: WebGLRenderingContext,
@@ -62,38 +59,6 @@ export class RendererHelper {
         }
 
         return shaderProgram;
-    }
-
-    static initBuffers(gl: WebGLRenderingContext): Buffers {
-        const positionBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.bufferData(
-            gl.ARRAY_BUFFER,
-            new Float32Array(BoxObject.vertices),
-            gl.STATIC_DRAW,
-        );
-
-        const colorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.bufferData(
-            gl.ARRAY_BUFFER,
-            new Uint8Array(BoxObject.colors),
-            gl.STATIC_DRAW,
-        );
-
-        const indexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-        gl.bufferData(
-            gl.ELEMENT_ARRAY_BUFFER,
-            new Uint16Array(BoxObject.indices),
-            gl.STATIC_DRAW,
-        );
-
-        return {
-            position: positionBuffer,
-            color: colorBuffer,
-            index: indexBuffer,
-        };
     }
 
     static resizeCanvasToDisplaySize(gl: WebGLRenderingContext) {

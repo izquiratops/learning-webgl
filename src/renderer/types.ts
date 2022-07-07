@@ -4,16 +4,6 @@ export interface Buffers {
     index?: WebGLBuffer;
 }
 
-export interface VertexAttribute {
-    buffer: WebGLBuffer;
-    bufferPosition: GLuint;
-    size: GLint;
-    type: GLenum;
-    normalized: GLboolean;
-    stride: GLsizei;
-    offset: GLintptr;
-}
-
 export interface ProgramInfo {
     program: WebGLProgram;
     attribLocations: {
@@ -23,4 +13,14 @@ export interface ProgramInfo {
     uniformLocations: {
         projectionMatrix: WebGLUniformLocation;
     };
+}
+
+export interface VertexAttribute {
+    buffer: WebGLBuffer;
+    bufferPosition: GLuint;
+    size: GLint;
+    type: GLenum;
+    normalized: GLboolean;
+    stride: GLsizei;
+    offset: GLintptr;
 }
