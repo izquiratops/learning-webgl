@@ -45,7 +45,7 @@ export class BoxObject {
 	    [  0,  255,    0,  255], // Top face: green
 	    [  0,    0,    0,  255], // Bottom face: blue
 	    [255,  255,    0,  255], // Right face: yellow
-	    [255,    0,    0,  255], // Left face: purple
+	    [255,    0,  255,  255], // Left face: purple
     ].reduce((acc, curr) => acc.concat(curr, curr, curr, curr), []);
 
     // This array defines each face as two triangles, using the
