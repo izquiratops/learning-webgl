@@ -4,10 +4,21 @@
         <meta charset="UTF-8" />
         <title>WebGL</title>
         <link href="style.css" rel="stylesheet" />
-        <script src="main.js" type="module"></script>
+        <script src="main.js"></script>
     </head>
 
     <body>
+        <section class="webgl-gui">
+            <div id="rotate-camera-value"></div>
+            <input
+                type="range"
+                id="rotate-camera"
+                name="rotate-camera"
+                min="0"
+                max="360"
+            />
+            <label for="rotate-camera">Rotate</label>
+        </section>
         <canvas id="glCanvas"></canvas>
     </body>
 </html>

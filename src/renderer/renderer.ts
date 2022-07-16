@@ -1,26 +1,39 @@
 import { glMatrix, mat4 } from 'gl-matrix';
+import { InputState } from '../inputs/input-state';
 import { Buffers, ProgramInfo } from './types';
-import { RendererHelper } from './renderer-helper';
-
-import { FRAGMENT_SOURCE, VERTEX_SOURCE } from './shaders';
 import { Box } from '../objects/box';
 
 export class Renderer {
-    initProgram(gl: WebGL2RenderingContext): ProgramInfo {
-        const shaderProgram = RendererHelper.createProgram(
-            gl,
+    private _gl: WebGL2RenderingContext;
+    private programInfo: ProgramInfo;
+    private buffers: Buffers;
+
+    constructor(private inputState: InputState) {}
+
+    set gl(value: WebGL2RenderingContext) {
+        this._gl = value;
+    }
+
+    initProgram(VERTEX_SOURCE: string, FRAGMENT_SOURCE: string): void {
+        const shaderProgram = this.createProgramFromGlsl(
             VERTEX_SOURCE,
             FRAGMENT_SOURCE,
         );
 
-        return {
+        this.programInfo = {
             program: shaderProgram,
             attribLocations: {
-                vertexPosition: gl.getAttribLocation(shaderProgram, 'a_vertex'),
-                vertexColor: gl.getAttribLocation(shaderProgram, 'a_color'),
+                vertexPosition: this._gl.getAttribLocation(
+                    shaderProgram,
+                    'a_vertex',
+                ),
+                vertexColor: this._gl.getAttribLocation(
+                    shaderProgram,
+                    'a_color',
+                ),
             },
             uniformLocations: {
-                projectionMatrix: gl.getUniformLocation(
+                projectionMatrix: this._gl.getUniformLocation(
                     shaderProgram,
                     'u_matrix',
                 ),
@@ -28,7 +41,10 @@ export class Renderer {
         };
     }
 
-    loadBuffers(gl: WebGLRenderingContext, mesh: Box): Buffers {
+    initBuffers(mesh: Box): void {
+        // This way I avoid to get a horde of ugly this._gl everywhere
+        const { _gl: gl } = this;
+
         const positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
         gl.bufferData(
@@ -53,33 +69,31 @@ export class Renderer {
             gl.STATIC_DRAW,
         );
 
-        return {
+        this.buffers = {
             position: positionBuffer,
             color: colorBuffer,
             index: indexBuffer,
         };
     }
 
-    run(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers) {
+    runFrames() {
         const render = () => {
             // Check if canvas has to be resized
-            RendererHelper.resizeCanvasToDisplaySize(gl);
+            this.resizeCanvasToDisplaySize();
 
             // Draw scene on canvas
-            this.drawScene(gl, programInfo, buffers);
+            this.drawScene();
 
             // Move to the following frame
             requestAnimationFrame(render);
         };
 
-        render();
+        requestAnimationFrame(render);
     }
 
-    private drawScene(
-        gl: WebGLRenderingContext,
-        programInfo: ProgramInfo,
-        buffers: Buffers,
-    ) {
+    private drawScene() {
+        const { _gl: gl, programInfo, buffers } = this;
+
         gl.clearColor(0, 0, 0, 1); // Clear black
         gl.clearDepth(1.0); // Clear everything
         gl.enable(gl.DEPTH_TEST); // Enable depth
@@ -108,6 +122,13 @@ export class Renderer {
                 projectionMatrix,
                 // prettier-ignore
                 [0.0, 0.0, -3.0],
+            );
+
+            mat4.rotate(
+                projectionMatrix,
+                projectionMatrix,
+                this.inputState.rotateCamera,
+                [0, 0, 1],
             );
 
             return projectionMatrix;
@@ -175,6 +196,83 @@ export class Renderer {
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+        }
+    }
+
+    private loadShader(shaderType: GLenum, shaderSource: string): WebGLShader {
+        const { _gl: gl } = this;
+
+        const shader = gl.createShader(shaderType);
+
+        // Load the shader source
+        gl.shaderSource(shader, shaderSource);
+
+        // Compile the shader
+        gl.compileShader(shader);
+
+        const compiled = gl.getShaderParameter(shader, gl.COMPILE_STATUS);
+        if (!compiled) {
+            gl.deleteShader(shader);
+            throw new Error(
+                `An error occurred compiling the shaders: ${gl.getShaderInfoLog(
+                    shader,
+                )}`,
+            );
+        }
+
+        return shader;
+    }
+
+    private createProgramFromGlsl(
+        vertexSource: string,
+        fragmentSource: string,
+    ): WebGLProgram {
+        const { _gl: gl } = this;
+
+        const vertexShader = this.loadShader(gl.VERTEX_SHADER, vertexSource);
+        const fragmentShader = this.loadShader(
+            gl.FRAGMENT_SHADER,
+            fragmentSource,
+        );
+
+        const shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, vertexShader);
+        gl.attachShader(shaderProgram, fragmentShader);
+
+        // Completes the process of preparing the GPU code for the shaders.
+        gl.linkProgram(shaderProgram);
+
+        const linked = gl.getProgramParameter(shaderProgram, gl.LINK_STATUS);
+        if (!linked) {
+            gl.deleteProgram(shaderProgram);
+            throw new Error(
+                `Unable to initialize the shader program: ${gl.getProgramInfoLog(
+                    shaderProgram,
+                )}`,
+            );
+        }
+
+        return shaderProgram;
+    }
+
+    private resizeCanvasToDisplaySize() {
+        const { _gl: gl } = this;
+
+        // Lookup the size the browser is displaying the canvas in CSS pixels.
+        const displayWidth = gl.canvas.clientWidth;
+        const displayHeight = gl.canvas.clientHeight;
+
+        // Check if the canvas is not the same size.
+        const needResize =
+            gl.canvas.width !== displayWidth ||
+            gl.canvas.height !== displayHeight;
+
+        if (needResize) {
+            // Make the canvas the same size
+            gl.canvas.width = displayWidth;
+            gl.canvas.height = displayHeight;
+
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
         }
     }
 }

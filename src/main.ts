@@ -1,4 +1,6 @@
 import { Renderer } from './renderer/renderer';
+import { InputState } from './inputs/input-state';
+import { FRAGMENT_SOURCE, VERTEX_SOURCE } from './renderer/shaders';
 import { Box } from './objects/box';
 
 window.onload = () => {
@@ -11,9 +13,12 @@ window.onload = () => {
         );
     }
 
-    const renderer = new Renderer();
-    const programInfo = renderer.initProgram(gl);
-    const buffers = renderer.loadBuffers(gl, new Box());
+    // Setting up <input> elements
+    const inputState = new InputState();
 
-    renderer.run(gl, programInfo, buffers);
+    const renderer = new Renderer(inputState);
+    renderer.gl = gl;
+    renderer.initProgram(VERTEX_SOURCE, FRAGMENT_SOURCE);
+    renderer.initBuffers(new Box());
+    renderer.runFrames();
 };
