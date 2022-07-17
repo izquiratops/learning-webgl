@@ -5,7 +5,8 @@
     "main": "src/main.ts",
     "scripts": {
         "build": "node build.js",
-        "serve": "npx http-server dist"
+        "serve": "npx http-server dist",
+        "format": "npx prettier --write ./src/**/*.ts"
     },
     "author": "Jordi Izquierdo",
     "license": "ISC",

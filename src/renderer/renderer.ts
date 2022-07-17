@@ -7,7 +7,10 @@ export class Renderer {
     private programInfo: ProgramInfo;
     private buffers: Buffers;
 
-    constructor(private gl: WebGL2RenderingContext, private gui: GuiComponent) {}
+    constructor(
+        private gl: WebGL2RenderingContext,
+        private gui: GuiComponent,
+    ) {}
 
     initProgram(VERTEX_SOURCE: string, FRAGMENT_SOURCE: string): void {
         const shaderProgram = this.createProgramFromGlsl(
