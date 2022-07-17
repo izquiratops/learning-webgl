@@ -21,7 +21,7 @@ export const FRAGMENT_SOURCE = `#version 300 es
     precision highp float;
 
     in lowp vec4 v_color;
-    
+
     out vec4 outColor;
 
     void main(void) {

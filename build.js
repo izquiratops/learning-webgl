@@ -16,4 +16,6 @@ const esbuild = require('esbuild');
 
     fs.copyFileSync('./src/index.html', './dist/index.html');
     fs.copyFileSync('./src/style.css', './dist/style.css');
+    fs.copyFileSync('./src/gui/gui.component.html', './dist/gui.component.html');
+    fs.copyFileSync('./src/gui/gui.component.css', './dist/gui.component.css');
 })();

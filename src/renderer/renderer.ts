@@ -1,18 +1,13 @@
 import { glMatrix, mat4 } from 'gl-matrix';
-import { InputState } from '../inputs/input-state';
+import { GuiComponent } from '../gui/gui.component';
 import { Buffers, ProgramInfo } from './types';
 import { Box } from '../objects/box';
 
 export class Renderer {
-    private _gl: WebGL2RenderingContext;
     private programInfo: ProgramInfo;
     private buffers: Buffers;
 
-    constructor(private inputState: InputState) {}
-
-    set gl(value: WebGL2RenderingContext) {
-        this._gl = value;
-    }
+    constructor(private gl: WebGL2RenderingContext, private gui: GuiComponent) {}
 
     initProgram(VERTEX_SOURCE: string, FRAGMENT_SOURCE: string): void {
         const shaderProgram = this.createProgramFromGlsl(
@@ -23,17 +18,17 @@ export class Renderer {
         this.programInfo = {
             program: shaderProgram,
             attribLocations: {
-                vertexPosition: this._gl.getAttribLocation(
+                vertexPosition: this.gl.getAttribLocation(
                     shaderProgram,
                     'a_vertex',
                 ),
-                vertexColor: this._gl.getAttribLocation(
+                vertexColor: this.gl.getAttribLocation(
                     shaderProgram,
                     'a_color',
                 ),
             },
             uniformLocations: {
-                projectionMatrix: this._gl.getUniformLocation(
+                projectionMatrix: this.gl.getUniformLocation(
                     shaderProgram,
                     'u_matrix',
                 ),
@@ -42,8 +37,8 @@ export class Renderer {
     }
 
     initBuffers(mesh: Box): void {
-        // This way I avoid to get a horde of ugly this._gl everywhere
-        const { _gl: gl } = this;
+        // This way I avoid to get a horde of ugly this.gl everywhere
+        const { gl } = this;
 
         const positionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -92,7 +87,7 @@ export class Renderer {
     }
 
     private drawScene() {
-        const { _gl: gl, programInfo, buffers } = this;
+        const { gl, programInfo, buffers } = this;
 
         gl.clearColor(0, 0, 0, 1); // Clear black
         gl.clearDepth(1.0); // Clear everything
@@ -127,7 +122,7 @@ export class Renderer {
             mat4.rotate(
                 projectionMatrix,
                 projectionMatrix,
-                this.inputState.rotateCamera,
+                this.gui.rotateCamera,
                 [0, 0, 1],
             );
 
@@ -200,7 +195,7 @@ export class Renderer {
     }
 
     private loadShader(shaderType: GLenum, shaderSource: string): WebGLShader {
-        const { _gl: gl } = this;
+        const { gl } = this;
 
         const shader = gl.createShader(shaderType);
 
@@ -227,7 +222,7 @@ export class Renderer {
         vertexSource: string,
         fragmentSource: string,
     ): WebGLProgram {
-        const { _gl: gl } = this;
+        const { gl } = this;
 
         const vertexShader = this.loadShader(gl.VERTEX_SHADER, vertexSource);
         const fragmentShader = this.loadShader(
@@ -256,7 +251,7 @@ export class Renderer {
     }
 
     private resizeCanvasToDisplaySize() {
-        const { _gl: gl } = this;
+        const { gl } = this;
 
         // Lookup the size the browser is displaying the canvas in CSS pixels.
         const displayWidth = gl.canvas.clientWidth;

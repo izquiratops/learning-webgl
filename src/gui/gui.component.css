@@ -1,0 +1,14 @@
+.sectionContainer {
+	position: fixed;
+	top: 0;
+	right: 0;
+
+	display: grid;
+	grid-auto-flow: column;
+	grid-gap: 0.4rem;
+
+	padding: 1rem;
+	margin: 1rem;
+	background: white;
+	border-radius: 0.2rem;
+}

@@ -4,8 +4,7 @@
     "description": "",
     "main": "src/main.ts",
     "scripts": {
-        "build": "node build.js",
-        "serve": "node build.js serve"
+        "build": "node build.js"
     },
     "author": "Jordi Izquierdo",
     "license": "ISC",
