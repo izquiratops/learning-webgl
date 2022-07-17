@@ -35,13 +35,13 @@ export class GuiComponent extends HTMLElement {
         }
 
         inputElement.addEventListener('input', (event) => {
-            const value = (event.target as HTMLInputElement).value;
+            const value = (event.target as HTMLInputElement).valueAsNumber;
 
             // Update DOM <div>
-            displayElement.textContent = value + 'º';
+            displayElement.textContent = value.toString() + 'º';
 
             // Update state for WebGL transformations
-            this._rotateCamera = (parseInt(value) * Math.PI) / 180;
+            this._rotateCamera = (value * Math.PI) / 180;
         });
     }
 }
