@@ -1,5 +1,40 @@
+class InputElement {
+    private _value: number = 0;
+
+    constructor(private _id: string) {}
+
+    get id() {
+        return this._id;
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    bind(inputElement: HTMLInputElement, displayElement: HTMLInputElement) {
+        // Init with a default value
+        {
+            const initValueAsString = this.value.toString();
+            inputElement.value = initValueAsString;
+            displayElement.textContent = initValueAsString + 'º';
+        }
+
+        inputElement.addEventListener('input', (event) => {
+            const eventValue = (event.target as HTMLInputElement).valueAsNumber;
+
+            // Update DOM <div>
+            displayElement.textContent = eventValue.toString() + 'º';
+
+            // Update state for WebGL transformations
+            this._value = (eventValue * Math.PI) / 180;
+        });
+    }
+}
+
 export class GuiComponent extends HTMLElement {
-    private _rotateCamera: number = 0;
+    private _rotateCameraX = new InputElement('rotateCameraX');
+    private _rotateCameraY = new InputElement('rotateCameraY');
+    private _rotateCameraZ = new InputElement('rotateCameraZ');
 
     constructor() {
         super();
@@ -9,39 +44,40 @@ export class GuiComponent extends HTMLElement {
             .then((stream) => stream.text())
             .then((html) => {
                 shadow.innerHTML = html;
-                this.setupInputElement('rotateCamera');
+
+                this.setupInputElement(this._rotateCameraX);
+                this.setupInputElement(this._rotateCameraY);
+                this.setupInputElement(this._rotateCameraZ);
             });
     }
 
-    get rotateCamera(): number {
-        return this._rotateCamera;
+    get rotateCameraX() {
+        console.log(this._rotateCameraX.value);
+        return this._rotateCameraX.value;
     }
 
-    private setupInputElement(id: string): void {
+    get rotateCameraY() {
+        console.log(this._rotateCameraX.value);
+        return this._rotateCameraY.value;
+    }
+
+    get rotateCameraZ() {
+        console.log(this._rotateCameraX.value);
+        return this._rotateCameraZ.value;
+    }
+
+    // TODO: Rename arg 'foo'
+    private setupInputElement(foo: InputElement) {
         // <input> element
         const inputElement = this.shadowRoot.getElementById(
-            id,
+            foo.id,
         ) as HTMLInputElement;
-        // <div> "side label" element
+
+        // <div> number display
         const displayElement = this.shadowRoot.getElementById(
-            id + 'Display',
+            foo.id + 'Display',
         ) as HTMLInputElement;
 
-        // Init with a default value
-        {
-            const initValueAsString = this.rotateCamera.toString();
-            inputElement.value = initValueAsString;
-            displayElement.textContent = initValueAsString + 'º';
-        }
-
-        inputElement.addEventListener('input', (event) => {
-            const value = (event.target as HTMLInputElement).valueAsNumber;
-
-            // Update DOM <div>
-            displayElement.textContent = value.toString() + 'º';
-
-            // Update state for WebGL transformations
-            this._rotateCamera = (value * Math.PI) / 180;
-        });
+        foo.bind(inputElement, displayElement);
     }
 }

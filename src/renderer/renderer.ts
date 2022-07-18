@@ -122,10 +122,25 @@ export class Renderer {
                 [0.0, 0.0, -3.0],
             );
 
+            // TODO: there's a way to rotate XYZ all at once?
             mat4.rotate(
                 projectionMatrix,
                 projectionMatrix,
-                this.gui.rotateCamera,
+                this.gui.rotateCameraX,
+                [1, 0, 0],
+            );
+
+            mat4.rotate(
+                projectionMatrix,
+                projectionMatrix,
+                this.gui.rotateCameraY,
+                [0, 1, 0],
+            );
+
+            mat4.rotate(
+                projectionMatrix,
+                projectionMatrix,
+                this.gui.rotateCameraZ,
                 [0, 0, 1],
             );
 

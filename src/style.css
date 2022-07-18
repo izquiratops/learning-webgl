@@ -1,12 +1,36 @@
-html,
-body {
-    overflow: hidden;
-    height: 100%;
-    margin: 0;
+:root {
+    --background: hsl(15 5% 20%);
+    --font-primary-color: hsl(0 0% 100%);
+
+    --space-xxs: 0.25rem;
+    --space-xs: 0.5rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2rem;
+    --space-xl: 3rem;
+    --space-xxl: 6rem;
 }
 
-#glCanvas {
-    width: 100%;
-    height: 100%;
+html {
+    block-size: 100%;
+    inline-size: 100%;
+}
+
+body {
+    min-block-size: 100%;
+    min-inline-size: 100%;
+
+    box-sizing: border-box;
+    margin: 0;
+
+    background: var(--background);
+    color: var(--font-primary-color);
+
+    font-family: system-ui, sans-serif;
+}
+
+canvas {
+    width: 100vw;
+    height: 100vh;
     display: block;
 }
