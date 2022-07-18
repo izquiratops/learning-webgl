@@ -1,4 +1,4 @@
-class InputElement {
+class GuiProperty {
     private _value: number = 0;
 
     constructor(private _id: string) {}
@@ -11,10 +11,18 @@ class InputElement {
         return this._value;
     }
 
-    bind(inputElement: HTMLInputElement, displayElement: HTMLInputElement) {
-        // Init with a default value
+    bindDomElements(shadow: ShadowRoot) {
+        const inputElement = shadow.getElementById(
+            this.id,
+        ) as HTMLInputElement;
+
+        const displayElement = shadow.getElementById(
+            this.id + 'Display',
+        ) as HTMLInputElement;
+
         {
             const initValueAsString = this.value.toString();
+
             inputElement.value = initValueAsString;
             displayElement.textContent = initValueAsString + 'º';
         }
@@ -32,22 +40,23 @@ class InputElement {
 }
 
 export class GuiComponent extends HTMLElement {
-    private _rotateCameraX = new InputElement('rotateCameraX');
-    private _rotateCameraY = new InputElement('rotateCameraY');
-    private _rotateCameraZ = new InputElement('rotateCameraZ');
+    private _rotateCameraX = new GuiProperty('rotateCameraX');
+    private _rotateCameraY = new GuiProperty('rotateCameraY');
+    private _rotateCameraZ = new GuiProperty('rotateCameraZ');
 
     constructor() {
         super();
 
         const shadow = this.attachShadow({ mode: 'open' });
+
         fetch('./gui.component.html')
             .then((stream) => stream.text())
             .then((html) => {
                 shadow.innerHTML = html;
 
-                this.setupInputElement(this._rotateCameraX);
-                this.setupInputElement(this._rotateCameraY);
-                this.setupInputElement(this._rotateCameraZ);
+                this._rotateCameraX.bindDomElements(shadow);
+                this._rotateCameraY.bindDomElements(shadow);
+                this._rotateCameraZ.bindDomElements(shadow);
             });
     }
 
@@ -64,20 +73,5 @@ export class GuiComponent extends HTMLElement {
     get rotateCameraZ() {
         console.log(this._rotateCameraX.value);
         return this._rotateCameraZ.value;
-    }
-
-    // TODO: Rename arg 'foo'
-    private setupInputElement(foo: InputElement) {
-        // <input> element
-        const inputElement = this.shadowRoot.getElementById(
-            foo.id,
-        ) as HTMLInputElement;
-
-        // <div> number display
-        const displayElement = this.shadowRoot.getElementById(
-            foo.id + 'Display',
-        ) as HTMLInputElement;
-
-        foo.bind(inputElement, displayElement);
     }
 }
