@@ -126,21 +126,21 @@ export class Renderer {
             mat4.rotate(
                 projectionMatrix,
                 projectionMatrix,
-                this.gui.rotateCameraX,
+                this.gui.getValue('rotateCameraX'),
                 [1, 0, 0],
             );
 
             mat4.rotate(
                 projectionMatrix,
                 projectionMatrix,
-                this.gui.rotateCameraY,
+                this.gui.getValue('rotateCameraY'),
                 [0, 1, 0],
             );
 
             mat4.rotate(
                 projectionMatrix,
                 projectionMatrix,
-                this.gui.rotateCameraZ,
+                this.gui.getValue('rotateCameraZ'),
                 [0, 0, 1],
             );
 

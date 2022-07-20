@@ -1,48 +1,7 @@
-class GuiProperty {
-    private _value: number = 0;
-
-    constructor(private _id: string) {}
-
-    get id() {
-        return this._id;
-    }
-
-    get value() {
-        return this._value;
-    }
-
-    bindDomElements(shadow: ShadowRoot) {
-        const inputElement = shadow.getElementById(
-            this.id,
-        ) as HTMLInputElement;
-
-        const displayElement = shadow.getElementById(
-            this.id + 'Display',
-        ) as HTMLInputElement;
-
-        {
-            const initValueAsString = this.value.toString();
-
-            inputElement.value = initValueAsString;
-            displayElement.textContent = initValueAsString + 'º';
-        }
-
-        inputElement.addEventListener('input', (event) => {
-            const eventValue = (event.target as HTMLInputElement).valueAsNumber;
-
-            // Update DOM <div>
-            displayElement.textContent = eventValue.toString() + 'º';
-
-            // Update state for WebGL transformations
-            this._value = (eventValue * Math.PI) / 180;
-        });
-    }
-}
+import { RangeInputComponent } from './range-input/range-input.component';
 
 export class GuiComponent extends HTMLElement {
-    private _rotateCameraX = new GuiProperty('rotateCameraX');
-    private _rotateCameraY = new GuiProperty('rotateCameraY');
-    private _rotateCameraZ = new GuiProperty('rotateCameraZ');
+    private properties = new Map<string, RangeInputComponent>();
 
     constructor() {
         super();
@@ -53,25 +12,30 @@ export class GuiComponent extends HTMLElement {
             .then((stream) => stream.text())
             .then((html) => {
                 shadow.innerHTML = html;
-
-                this._rotateCameraX.bindDomElements(shadow);
-                this._rotateCameraY.bindDomElements(shadow);
-                this._rotateCameraZ.bindDomElements(shadow);
+                this.loadChildren();
             });
     }
 
-    get rotateCameraX() {
-        console.log(this._rotateCameraX.value);
-        return this._rotateCameraX.value;
+    getValue(key: string): number | null {
+        return this.properties.get(key)?.value;
     }
 
-    get rotateCameraY() {
-        console.log(this._rotateCameraX.value);
-        return this._rotateCameraY.value;
-    }
+    private loadChildren() {
+        const anchorRef = this.shadowRoot.getElementById('propertiesAnchor');
 
-    get rotateCameraZ() {
-        console.log(this._rotateCameraX.value);
-        return this._rotateCameraZ.value;
+        this.properties.set('rotateCameraX', new RangeInputComponent('X'));
+        this.properties.set('rotateCameraY', new RangeInputComponent('Y'));
+        this.properties.set('rotateCameraZ', new RangeInputComponent('Z'));
+
+        anchorRef.appendChild(this.properties.get('rotateCameraX'));
+        anchorRef.appendChild(this.properties.get('rotateCameraY'));
+        anchorRef.appendChild(this.properties.get('rotateCameraZ'));
+
+        const event = new CustomEvent('gui-ready', {
+            bubbles: true,
+            composed: true,
+        });
+
+        this.shadowRoot.dispatchEvent(event);
     }
 }

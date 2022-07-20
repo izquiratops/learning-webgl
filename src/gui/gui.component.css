@@ -1,4 +1,4 @@
-.sectionContainer {
+.propertiesAnchor {
     /* Position */
     position: fixed;
     top: 0;
@@ -6,10 +6,10 @@
 
     /* Layout */
     display: grid;
-    grid-template-columns: 4ch 1fr 2ch;
-    grid-gap: var(--space-sm);
+    grid-auto-flow: row;
 
     /* Spacing */
+    grid-gap: var(--space-sm);
     padding: var(--space-sm);
     margin: var(--space-sm);
     border-radius: var(--space-xs);
