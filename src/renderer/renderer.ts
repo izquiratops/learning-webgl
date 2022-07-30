@@ -1,16 +1,17 @@
 import { glMatrix, mat4 } from 'gl-matrix';
-import { GuiComponent } from '../gui/gui.component';
 import { Buffers, ProgramInfo } from './types';
 import { Box } from '../objects/box';
 
 export class Renderer {
+    rotation = {
+        x: 0,
+        y: 0,
+        z: 0,
+    };
     private programInfo: ProgramInfo;
     private buffers: Buffers;
 
-    constructor(
-        private gl: WebGL2RenderingContext,
-        private gui: GuiComponent,
-    ) {}
+    constructor(private gl: WebGL2RenderingContext) {}
 
     initProgram(VERTEX_SOURCE: string, FRAGMENT_SOURCE: string): void {
         const shaderProgram = this.createProgramFromGlsl(
@@ -126,21 +127,21 @@ export class Renderer {
             mat4.rotate(
                 projectionMatrix,
                 projectionMatrix,
-                this.gui.getValue('rotateCameraX'),
+                this.rotation.x,
                 [1, 0, 0],
             );
 
             mat4.rotate(
                 projectionMatrix,
                 projectionMatrix,
-                this.gui.getValue('rotateCameraY'),
+                this.rotation.y,
                 [0, 1, 0],
             );
 
             mat4.rotate(
                 projectionMatrix,
                 projectionMatrix,
-                this.gui.getValue('rotateCameraZ'),
+                this.rotation.z,
                 [0, 0, 1],
             );
 

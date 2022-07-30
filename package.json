@@ -11,6 +11,7 @@
     "author": "Jordi Izquierdo",
     "license": "ISC",
     "dependencies": {
+        "dat.gui": "^0.7.9",
         "gl-matrix": "^3.4.3"
     },
     "devDependencies": {

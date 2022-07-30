@@ -1,24 +1,18 @@
 // Utils
 import { Renderer } from './renderer/renderer';
 
-// Components
-import { GuiComponent } from './gui/gui.component';
-import { RangeInputComponent } from './gui/range-input/range-input.component';
-
 // Scene data
 import { FRAGMENT_SOURCE, VERTEX_SOURCE } from './renderer/shaders';
 import { Box } from './objects/box';
 
-window.onload = () => {
-    // Register the <webgl-gui> element
-    customElements.define('webgl-gui', GuiComponent);
-    customElements.define('webgl-range-input', RangeInputComponent);
+// @ts-ignore
+import { GUI } from 'dat.gui';
 
+window.onload = () => {
     // Get DOM references
     const glCanvasRef = document.getElementById(
         'glCanvas',
     ) as HTMLCanvasElement;
-    const glGuiRef = document.getElementById('glGui') as GuiComponent;
 
     // Get WebGL2 context
     const gl: WebGL2RenderingContext = glCanvasRef.getContext('webgl2');
@@ -28,16 +22,14 @@ window.onload = () => {
         );
     }
 
-    // Setup Renderer once the GUI is ready
-    document.addEventListener(
-        'gui-ready',
-        () => {
-            // Run an instance of the Renderer with WebGL Context and the state of the GUI
-            const renderer = new Renderer(gl, glGuiRef);
-            renderer.initProgram(VERTEX_SOURCE, FRAGMENT_SOURCE);
-            renderer.initBuffers(new Box());
-            renderer.runFrames();
-        },
-        { once: true },
-    );
+    // Run an instance of the Renderer with WebGL Context and the state of the GUI
+    const scene = new Renderer(gl);
+    scene.initProgram(VERTEX_SOURCE, FRAGMENT_SOURCE);
+    scene.initBuffers(new Box());
+    scene.runFrames();
+
+    const gui = new GUI();
+    gui.add(scene.rotation, 'x', 0, Math.PI * 2);
+    gui.add(scene.rotation, 'y', 0, Math.PI * 2);
+    gui.add(scene.rotation, 'z', 0, Math.PI * 2);
 };
